@@ -87,6 +87,7 @@ function downloadCertificate() {
 // Unified share (email/WhatsApp/native)
 function shareCertificate() {
     applyPreview();
+    document.getElementById("dateArea").style.bottom = '80px';
     html2canvas(document.getElementById('certificate')).then(canvas => {
         canvas.toBlob(blob => {
             const file = new File([blob], 'certificate.png', {type: blob.type});
@@ -102,6 +103,7 @@ function shareCertificate() {
             }
         });
     });
+    document.getElementById("dateArea").style.bottom = '73px';
 }
 
 // Event bindings
