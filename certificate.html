@@ -68,13 +68,36 @@
             font-size: 26px;
             z-index: 2;
         }
+
+        footer {
+            border-top: 1px solid #ddd;
+            padding: 12px 0;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #666;
+            background: transparent;
+        }
     </style>
 </head>
 <body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="#">Certificate Generator</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html">SingOut</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <div class="container py-4">
     <div class="row">
         <div class="col-md-5">
-            <h3 class="mb-4">Fill Certificate Data</h3>
             <form onsubmit="return false;">
                 <div class="mb-3">
                     <label for="recipientName" class="form-label">Recipient Name</label>
@@ -111,6 +134,9 @@
         </div>
     </div>
 </div>
+<footer class="text-center mt-4 mb-3">
+    <small>Developed by Sanu Vithanage 2025 | <a href="https://sanuv.uk" target="_blank">sanuv.uk</a></small>
+</footer>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -159,45 +185,73 @@
     // Print only certificate
     function printCertificate() {
         applyPreview();
-        window.print();
+        // Open a new window with only the certificate markup
+        const content = document.getElementById('certificate').outerHTML;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>Certificate</title>
+              <style>
+                body { margin: 0; padding: 0; }
+                #certificate { width: 800px; height: 1120px; margin: 0 auto; position: relative; font-family: 'Playfair Display', serif; }
+                #certificate img#bgImage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+                #nameArea, #sigArea, #dateArea { position: absolute; left: 50%; transform: translateX(-50%); z-index: 2; }
+                #nameArea { top: 522px; font-family: 'Alex Brush', cursive; font-size: 46px; text-decoration: underline; text-align: center; width: 80%; word-wrap: break-word; }
+                #sigArea { top: 822px; width: 180px; }
+                #dateArea { top: 1020px; width: 100%; font-size: 21px; text-align: center; transform: none; left: 70px; }
+              </style>
+            </head>
+            <body>
+              ${content}
+            </body>
+          </html>`);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.onload = () => {
+          printWindow.print();
+          printWindow.close();
+        };
     }
 
-    // Download PNG
-    function downloadCertificate() {
-        applyPreview();
-        document.getElementById("dateArea").style.bottom='80px';
-        html2canvas(document.getElementById('certificate')).then(canvas => {
-            const link = document.createElement('a'); link.download = 'certificate.png';
-            link.href = canvas.toDataURL('image/png'); link.click();
-        });
-        document.getElementById("dateArea").style.bottom='73px';
-    }
+  // Download PNG
+  function downloadCertificate() {
+      applyPreview();
+      document.getElementById("dateArea").style.bottom='80px';
+      html2canvas(document.getElementById('certificate')).then(canvas => {
+          const link = document.createElement('a'); link.download = 'certificate.png';
+          link.href = canvas.toDataURL('image/png'); link.click();
+      });
+      document.getElementById("dateArea").style.bottom='73px';
+  }
 
-    // Unified share (email/WhatsApp/native)
-    function shareCertificate() {
-        applyPreview();
-        html2canvas(document.getElementById('certificate')).then(canvas => {
-            canvas.toBlob(blob => {
-                const file = new File([blob], 'certificate.png', { type: blob.type });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({ files: [file], title: 'Certificate', text: 'Here is your certificate!' });
-                } else {
-                    // Fallback: download then prompt user
-                    const link = document.createElement('a');
-                    link.download = 'certificate.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    alert('Sharing not supported; certificate downloaded. Please attach it manually.');
-                }
-            });
-        });
-    }
+  // Unified share (email/WhatsApp/native)
+  function shareCertificate() {
+    applyPreview();
+    html2canvas(document.getElementById('certificate')).then(canvas => {
+      canvas.toBlob(blob => {
+        const file = new File([blob], 'certificate.png', { type: blob.type });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: 'Certificate', text: 'Here is your certificate!' });
+        } else {
+          // Fallback: download then prompt user
+          const link = document.createElement('a');
+          link.download = 'certificate.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          alert('Sharing not supported; certificate downloaded. Please attach it manually.');
+        }
+      });
+    });
+  }
 
-    // Event bindings
-    document.getElementById('previewBtn').addEventListener('click', applyPreview);
-    document.getElementById('downloadBtn').addEventListener('click', downloadCertificate);
-    document.getElementById('printBtn').addEventListener('click', printCertificate);
-    document.getElementById('shareBtn').addEventListener('click', shareCertificate);
+  // Event bindings
+  document.getElementById('previewBtn').addEventListener('click', applyPreview);
+  document.getElementById('downloadBtn').addEventListener('click', downloadCertificate);
+  document.getElementById('printBtn').addEventListener('click', printCertificate);
+  document.getElementById('shareBtn').addEventListener('click', shareCertificate);
 </script>
 </body>
 </html>
