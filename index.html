@@ -1,21 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Login</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Login | Coop Certificate Generator</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link rel="stylesheet" href="css/log.css">
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center vh-100">
-<div class="card p-4" style="width: 320px;">
-  <h2 class="text-center mb-4 text-primary">Sign In</h2>
-  <form id="loginForm">
-    <input name="username" class="form-control mb-3" placeholder="Username" required>
-    <input name="password" type="password" class="form-control mb-3" placeholder="Password" required>
-    <div id="error" class="text-danger mb-3" style="display:none;">Invalid credentials</div>
-    <button class="btn btn-primary w-100">Login</button>
-  </form>
+<body>
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+        <!-- Tabs Titles -->
+
+        <!-- Icon -->
+        <div class="fadeIn first">
+            <img src="images/logo.webp" id="icon" alt="User Icon" />
+            <h1>Cert Generator</h1>
+        </div>
+
+        <!-- Login Form -->
+        <form>
+            <input type="text" id="userName" class="fadeIn second" name="login" placeholder="UserName">
+            <input type="text" id="password" class="fadeIn third" name="login" placeholder="Password">
+            <input type="button" id="btn" class="fadeIn fourth" value="Log In">
+        </form>
+
+
+        <div id="formFooter">
+            <a class="underlineHover" target="_blank" href="https://akrivo.lk">Developed By Sanu Vithanage</a>
+        </div>
+
+    </div>
 </div>
-<script src="js/app.js"></script>
 </body>
+<script src="js/auth.js"></script>
 </html>
