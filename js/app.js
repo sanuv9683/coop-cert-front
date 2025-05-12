@@ -24,7 +24,9 @@ if (document.getElementById('loginForm')) {
 // === certificate behavior
 if (location.pathname.endsWith('certificate.html')) {
     const token = localStorage.getItem('jwt');
-    if (!token) return location.href = 'index.html';
+    if (!token) { // noinspection JSAnnotator
+        return location.href = 'index.html';
+    }
 
     // extract name from URL for display + fetch date
     const name = new URLSearchParams(location.search).get('name');

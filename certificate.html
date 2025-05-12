@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Certificate Generator</title>
+    <!-- Google Font for Name -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Print only the certificate */
+        @media print {
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body * { visibility: hidden; }
+            #certificate, #certificate * { visibility: visible; }
+            #certificate { position: absolute; top: 0; left: 0; margin: 0; width: 100%; }
+        }
+
+        body { background: #f0f0f0; }
+        #certificate {
+            width: 800px;
+            height: 1120px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Playfair Display', serif;
+            color: #000;
+        }
+        /* Background image as actual <img> so it prints */
+        #certificate img#bgImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+        /* Overlays: name, signature, date */
+        #nameArea, #dateArea, #sigArea {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        #nameArea {
+            top: 522px;
+            font-family: 'Alex Brush', cursive;
+            font-size: 46px;
+            text-decoration: underline;
+            text-align: center;
+            width: 80%;
+            word-wrap: break-word;
+        }
+        #sigArea {
+            top: 822px;
+            width: 180px;
+            display: none;
+        }
+        #dateArea {
+            bottom: 73px;
+            left: 477px;
+            font-size: 26px;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-5">
+            <h3 class="mb-4">Fill Certificate Data</h3>
+            <form onsubmit="return false;">
+                <div class="mb-3">
+                    <label for="recipientName" class="form-label">Recipient Name</label>
+                    <input type="text" id="recipientName" class="form-control" placeholder="e.g. Jane Doe" required>
+                </div>
+                <div class="mb-3">
+                    <label for="dateField" class="form-label">Award Date</label>
+                    <input type="date" id="dateField" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Signature</label>
+                    <div class="border p-2 d-inline-block">
+                        <canvas id="signaturePad" width="300" height="150"></canvas>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="clearSig">Clear</button>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-primary flex-fill" id="previewBtn">Preview</button>
+                    <button type="button" class="btn btn-success flex-fill" id="downloadBtn">Download PNG</button>
+                    <button type="button" class="btn btn-secondary flex-fill" id="printBtn">Print</button>
+                    <button type="button" class="btn btn-info flex-fill" id="shareBtn">Share</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-7">
+            <div id="certificate">
+                <!-- Background image element -->
+                <img id="bgImage" src="images/V2.png" alt="Certificate Template">
+                <!-- Dynamic Overlays -->
+                <div id="nameArea"></div>
+                <img id="sigArea" src="" alt="Signature">
+                <div id="dateArea"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // Setup SignaturePad
+    const canvas = document.getElementById('signaturePad');
+    const signaturePad = new SignaturePad(canvas, {
+        minWidth: 0.5,
+        maxWidth: 2.5,
+        penColor: 'black',
+        backgroundColor: null
+    });
+    document.getElementById('clearSig').addEventListener('click', () => {
+        signaturePad.clear();
+        document.getElementById('sigArea').style.display = 'none';
+    });
+
+    // Set date picker to today
+    const dateField = document.getElementById('dateField');
+    window.addEventListener('load', () => {
+        dateField.valueAsDate = new Date();
+        applyPreview();
+    });
+
+    // Update certificate overlays
+    function applyPreview() {
+        // Name
+        const nameVal = document.getElementById('recipientName').value.trim() || '__________';
+        document.getElementById('nameArea').textContent = nameVal;
+
+        // Date from picker
+        const dateVal = dateField.value;
+        const dateText = dateVal ? new Date(dateVal).toLocaleDateString() : '';
+        document.getElementById('dateArea').textContent = dateText;
+
+        // Signature
+        const sigImg = document.getElementById('sigArea');
+        if (!signaturePad.isEmpty()) {
+            sigImg.src = signaturePad.toDataURL('image/png');
+            sigImg.style.display = 'block';
+        }
+    }
+
+    // Print only certificate
+    function printCertificate() {
+        applyPreview();
+        window.print();
+    }
+
+    // Download PNG
+    function downloadCertificate() {
+        applyPreview();
+        document.getElementById("dateArea").style.bottom='80px';
+        html2canvas(document.getElementById('certificate')).then(canvas => {
+            const link = document.createElement('a'); link.download = 'certificate.png';
+            link.href = canvas.toDataURL('image/png'); link.click();
+        });
+        document.getElementById("dateArea").style.bottom='73px';
+    }
+
+    // Unified share (email/WhatsApp/native)
+    function shareCertificate() {
+        applyPreview();
+        html2canvas(document.getElementById('certificate')).then(canvas => {
+            canvas.toBlob(blob => {
+                const file = new File([blob], 'certificate.png', { type: blob.type });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({ files: [file], title: 'Certificate', text: 'Here is your certificate!' });
+                } else {
+                    // Fallback: download then prompt user
+                    const link = document.createElement('a');
+                    link.download = 'certificate.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    alert('Sharing not supported; certificate downloaded. Please attach it manually.');
+                }
+            });
+        });
+    }
+
+    // Event bindings
+    document.getElementById('previewBtn').addEventListener('click', applyPreview);
+    document.getElementById('downloadBtn').addEventListener('click', downloadCertificate);
+    document.getElementById('printBtn').addEventListener('click', printCertificate);
+    document.getElementById('shareBtn').addEventListener('click', shareCertificate);
+</script>
+</body>
+</html>
